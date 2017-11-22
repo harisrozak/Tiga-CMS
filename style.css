@@ -1,0 +1,47 @@
+/*
+Theme Name: Tiga CMS
+Theme URI: https://github.com/harisrozak
+Author: harisrozak
+Author URI: https://github.com/harisrozak
+Description: A CMS built with WordPress and Tiga Router
+Version: 1.0
+Text Domain: tiga-cms
+*/
+
+.container.main-container {
+	margin-top: 30px;
+}
+
+ul.pagination {
+	margin: 20px 0 50px;
+}
+
+table thead th.col-date {
+	width: 200px;
+}
+
+table thead th.col-actions {
+	width: 135px;
+}
+
+.screen-reader-text, .screen-reader-text span, .ui-helper-hidden-accessible {
+    position: absolute;
+    margin: -1px;
+    padding: 0;
+    height: 1px;
+    width: 1px;
+    overflow: hidden; 
+    clip: rect(0 0 0 0);
+    border: 0;
+    word-wrap: normal!important;
+}
+
+ul.pagination span.total {
+    height: 38px;
+    line-height: 36px;
+    padding-right: 15px;
+}
+
+.hidden {
+    display: none;
+}
