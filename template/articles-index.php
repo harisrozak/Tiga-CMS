@@ -11,19 +11,23 @@
 	$total_number = $the_query->found_posts; //total without limit
 	$displayed_number =  $the_query->post_count; //total with limit
 
+	// nonce
+	$nonce = wp_create_nonce( 'article_actions_nonce' );
+
+	// flash message
 	extras::flash_message($data);
 	?>
 
 	<div class="row post-list-top-panel">
 		<div class="col-md-6">
-			<a class="btn btn-outline-primary <?php echo $data['status'] == 'publish' ? 'active' : '' ?>" href="<?php echo site_url('articles') ?>">
+			<a class="btn btn-outline-primary <?php echo $data['active_status'][0] ?>" href="<?php echo site_url('articles') ?>">
 				Published (<?php echo $data['count_posts']->publish ?>)
 			</a>
-			<a class="btn btn-outline-danger <?php echo $data['status'] == 'trash' ? 'active' : '' ?>" href="<?php echo site_url('articles/status/trash') ?>">
+			<a class="btn btn-outline-danger <?php echo $data['active_status'][1] ?>"" href="<?php echo site_url('articles/status/trash') ?>">
 				Trashed (<?php echo $data['count_posts']->trash ?>)
 			</a>
 			<div class="btn-group">
-				<a class="btn btn-outline-dark dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<a class="btn btn-outline-dark dropdown-toggle <?php echo $data['active_status'][2] ?>"" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					Other Status	
 				</a>
 				<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
@@ -78,13 +82,13 @@
 			      		<div class="post-list-item-actions">
 			      		<?php if($data['status'] == 'trash'): ?>
 
-			      		<a href="<?php echo site_url('articles/' . get_the_ID() . '/restore') ?>" class="btn btn-sm btn-outline-info">Restore</a>
-			      		<a href="<?php echo site_url('articles/' . get_the_ID() . '/delete_permanent') ?>" class="btn btn-sm btn-outline-danger">Delete Permanently</a>
+			      		<a href="<?php echo site_url('articles/' . get_the_ID() . '/restore') ?>?_cmsnonce=<?php echo $nonce ?>" class="btn btn-sm btn-outline-info">Restore</a>
+			      		<a href="<?php echo site_url('articles/' . get_the_ID() . '/delete_permanent') ?>?_cmsnonce=<?php echo $nonce ?>" class="btn btn-sm btn-outline-danger">Delete Permanently</a>
 
 			      		<?php else: ?>
 			      		
-			      		<a href="<?php echo site_url('articles/' . get_the_ID() . '/edit') ?>" class="btn btn-sm btn-outline-info">Edit</a>
-			      		<a href="<?php echo site_url('articles/' . get_the_ID() . '/trash') ?>" class="btn btn-sm btn-outline-danger">Trash</a>
+			      		<a href="<?php echo site_url('articles/' . get_the_ID() . '/edit') ?>?_cmsnonce=<?php echo $nonce ?>" class="btn btn-sm btn-outline-info">Edit</a>
+			      		<a href="<?php echo site_url('articles/' . get_the_ID() . '/trash') ?>?_cmsnonce=<?php echo $nonce ?>" class="btn btn-sm btn-outline-danger">Trash</a>
 			      		
 			      		<?php endif ?>
 			      		</div>

@@ -37,7 +37,8 @@ class HRS_Articles {
 		TigaRoute::get( '/articles/{id:num}/edit', array( $this, 'articles_edit' ) );
 		TigaRoute::post( '/articles/{id:num}/edit', array( $this, 'articles_update' ) );
 		TigaRoute::get( '/articles/{id:num}/trash', array( $this, 'articles_trash' ) );
-		TigaRoute::get( '/articles/{id:num}/delete', array( $this, 'articles_delete' ) );
+		TigaRoute::get( '/articles/{id:num}/restore', array( $this, 'articles_untrash' ) );
+		TigaRoute::get( '/articles/{id:num}/delete', array( $this, 'articles_delete' ) );		
 		TigaRoute::get( '/articles/new', array( $this, 'articles_new' ) );
 		TigaRoute::post( '/articles/new', array( $this, 'articles_create' ) );	
 		TigaRoute::get( '/articles', array( $this, 'articles_index' ) );
@@ -47,7 +48,7 @@ class HRS_Articles {
 	 * Index Controller
 	 */	
 	public function articles_index($request) {
-		extras::check_login('login');
+		extras::check_login( 'login' );
 
 		global $wpdb;
 
@@ -60,10 +61,24 @@ class HRS_Articles {
     		'ignore_sticky_posts' => true
     	);
 
+    	// active status
+		$status = $request->input( 'status', 'publish' );
+		if($status == 'publish') {
+			$active_status = array('active', '', '');
+		}
+		else if($status == 'trash') {
+			$active_status = array('', 'active', '');
+		}
+		else {
+			$active_status = array('', '', 'active');	
+		}
+
+		// data
     	$data = array(
     		'args' => $args,
     		'count_posts' =>  wp_count_posts(),
-    		'status' => $request->input( 'status', 'publish' ),
+    		'status' => $status,
+    		'active_status' => $active_status,
     		'flash' => $this->flash,
     	);
 			
@@ -74,13 +89,16 @@ class HRS_Articles {
 	 * New Item Controller
 	 */
 	public function articles_new() {
-		extras::check_login('login');
+		extras::check_login( 'login' );
 		
 		// required for wp_category_checklist
 		require_once( ABSPATH . '/wp-admin/includes/template.php' );
 
+		$statuses = array_reverse( get_post_statuses() ); 
+
 		$data = array(
 			'repopulate' => $this->session->pull( 'input' ),
+			'statuses' => $statuses,
 			'flash' => $this->flash,
 		);
 		
@@ -93,7 +111,8 @@ class HRS_Articles {
 	 * @param object $request   Request object.
 	 */
 	public function articles_create( $request ) {
-		extras::check_login('login');
+		extras::check_login( 'login' );
+		extras::verify_nonce_field( 'article_actions_nonce' );
 
 		if ( $request->has( 'title' ) ) {
 			$data = $request->all();
@@ -109,8 +128,8 @@ class HRS_Articles {
 			// wp_insert_post
 			$post_id = wp_insert_post( array(
 			    'post_title' => $request->input( 'title' ),
-			    'post_content' => wp_slash( $request->input( 'content' ) ),
-			    'post_status' => 'publish',
+			    'post_content' => $request->input( 'content' ),
+			    'post_status' => $request->input( 'status', 'publish' ),
 			    'post_type' => 'post',
 			) );
 
@@ -142,7 +161,7 @@ class HRS_Articles {
 	 * @param object $request Request object.
 	 */
 	public function articles_edit( $request ) {
-		extras::check_login('login');
+		extras::check_login( 'login' );		
 
 		$post = get_post( $request->input( 'id' ) );
 		$thumbnail_id = get_post_thumbnail_id( $post->ID );
@@ -155,8 +174,11 @@ class HRS_Articles {
 		// required for wp_category_checklist
 		require_once( ABSPATH . '/wp-admin/includes/template.php' );
 
+		$statuses = array_reverse( get_post_statuses() ); 
+
 		$data = array(
 			'post' => $post,
+			'statuses' => $statuses,
 			'thumbnail_id' => $thumbnail_id,
 			'thumbnail_src' => $thumbnail_src,
 			'repopulate' => $this->session->pull( 'input' ),
@@ -172,7 +194,8 @@ class HRS_Articles {
 	 * @param object $request Request object.
 	 */
 	public function articles_update( $request ) {
-		extras::check_login('login');
+		extras::check_login( 'login' );
+		extras::verify_nonce_field( 'article_actions_nonce' );
 
 		if ( $request->has( 'title' ) ) {
 			$data = $request->all();
@@ -190,8 +213,8 @@ class HRS_Articles {
 			wp_update_post( array(
 			    'ID' => $post_id,
 			    'post_title' => $request->input( 'title' ),
-			    'post_content' => wp_slash( $request->input( 'content' ) ),
-			    'post_status' => 'publish'
+			    'post_content' => $request->input( 'content' ),
+			    'post_status' => $request->input( 'status', 'publish' )
 			) );
 
 			// set category
@@ -222,10 +245,28 @@ class HRS_Articles {
 	 * @param object $request Request object.
 	 */
 	public function articles_trash( $request ) {
-		extras::check_login('login');
+		extras::check_login( 'login' );
+		extras::verify_nonce_request( 'article_actions_nonce' );
 
 		// delete a post
 		wp_delete_post( $request->input( 'id' ), false );
+
+		// success flash message
+		$this->flash->success( 'Article trashed' );
+		wp_safe_redirect( site_url() . '/articles' );
+	}
+
+	/**
+	 * Untrash Item Controller
+	 *
+	 * @param object $request Request object.
+	 */
+	public function articles_untrash( $request ) {
+		extras::check_login( 'login' );
+		extras::verify_nonce_request( 'article_actions_nonce' );
+
+		// delete a post
+		wp_untrash_post( $request->input( 'id' ) );
 
 		// success flash message
 		$this->flash->success( 'Article trashed' );
@@ -239,6 +280,7 @@ class HRS_Articles {
 	 */
 	public function articles_delete( $request ) {
 		extras::check_login('login');
+		extras::verify_nonce_request( 'article_actions_nonce' );
 
 		// delete a post
 		wp_delete_post( $request->input( 'id' ), true );

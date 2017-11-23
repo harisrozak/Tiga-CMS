@@ -8,8 +8,9 @@
 	<?php extras::flash_message($data); ?>
 
 	<form action="" method="post">
-		<div class="row">
+		<?php extras::nonce_field( 'article_actions_nonce' ); ?>
 
+		<div class="row">
 			<div class="col-md-8">				
 				<div class="form-group">
 					<label for="input-title">Title</label>
@@ -20,11 +21,19 @@
 					<?php wp_editor( '', 'content', array() ); ?> 
 				</div>								
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-4">				
 				<div class="form-group">
 					<label for="input-desc">Actions</label><br>
 					<input type="submit" value="Save article" class="btn btn-primary">
 					<a href="<?php echo site_url('articles') ?>" class="btn btn-secondary">Cancel</a>
+				</div>
+				<div class="form-group">
+					<label for="input-desc">Status</label><br>
+					<select class="form-control" name="status">
+						<?php foreach ($data['statuses'] as $key => $value): ?>						
+						<option value="<?php echo $key ?>"><?php echo $value ?></option>
+						<?php endforeach ?>
+					</select>
 				</div>
 				<div class="form-group">
 					<label for="input-desc">Categories</label>

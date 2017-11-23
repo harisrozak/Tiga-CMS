@@ -8,8 +8,9 @@
 	<?php extras::flash_message($data); ?>
 
 	<form action="" method="post">
-		<div class="row">
+		<?php extras::nonce_field( 'article_actions_nonce' ); ?>
 
+		<div class="row">
 			<div class="col-md-8">				
 				<div class="form-group">
 					<label for="input-title">Title</label>
@@ -18,13 +19,25 @@
 				<div class="form-group">
 					<label for="input-price"></label>
 					<?php wp_editor( $data['post']->post_content, 'content', array() ); ?> 
-				</div>								
+				</div>
 			</div>
 			<div class="col-md-4">
 				<div class="form-group">
 					<label for="input-desc">Actions</label><br>
 					<input type="submit" value="Update article" class="btn btn-primary">
-					<a href="<?php echo site_url('articles/' . $data['post']->ID . '/trash') ?>" class="btn btn-danger">Move to trash</a>
+					<a href="<?php echo site_url('articles/' . $data['post']->ID . '/trash') ?>?_cmsnonce=<?php echo wp_create_nonce( 'article_actions_nonce' ) ?>" class="btn btn-danger">Move to trash</a>
+				</div>
+				<div class="form-group">
+					<label for="input-desc">Status</label><br>
+					<select class="form-control" name="status">
+						<?php foreach ($data['statuses'] as $key => $value): ?>						
+
+						<option value="<?php echo $key ?>" <?php if( $data['post']->post_status == $key ) echo "selected" ?> >
+							<?php echo $value ?>
+						</option>
+
+						<?php endforeach ?>
+					</select>
 				</div>
 				<div class="form-group">
 					<label for="input-desc">Categories</label>

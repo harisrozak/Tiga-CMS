@@ -16,12 +16,14 @@
 				<div class="collapse navbar-collapse" id="navbarsExampleDefault">
         			<ul class="navbar-nav mr-auto">
           				<li class="nav-item active">
-            				<a class="nav-link" href="<?php echo site_url('dashboard') ?>">Home <span class="sr-only">(current)</span></a>
+            				<a class="nav-link" href="<?php echo site_url('dashboard') ?>">Dashboard</a>
+          				</li>
+          				<li class="nav-item">
+            				<a class="nav-link" href="<?php echo site_url('articles') ?>">Articles</a>
           				</li>
           				<li class="nav-item dropdown">
-				            <a class="nav-link dropdown-toggle" href="<?php echo site_url('article') ?>" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">Articles</a>
+				            <a class="nav-link dropdown-toggle" href="<?php echo site_url('article') ?>" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">Add New</a>
 				            <div class="dropdown-menu" aria-labelledby="dropdown01">
-				              	<a class="dropdown-item" href="<?php echo site_url('articles') ?>">View Articles</a>
 				              	<a class="dropdown-item" href="<?php echo site_url('articles/new') ?>">New Article</a>
 				            </div>
 			          	</li>

@@ -59,6 +59,10 @@ table thead th.col-status {
     width: 185px;
 }
 
+input[type='submit'] {
+    cursor: pointer;
+}
+
 .screen-reader-text, .screen-reader-text span, .ui-helper-hidden-accessible {
     position: absolute;
     margin: -1px;

@@ -1,7 +1,13 @@
 <?php
 
+/**
+ * Class extras
+ * Much of useful static methods
+ */
 if(! class_exists('extras')):
 class extras {
+	public static $nonce_name = 'tiga_cms_nonce';
+
 	public static function check_login( $redirect ) {
 		global $user_ID;
 		
@@ -72,6 +78,10 @@ class extras {
 			case 'auto-draft':
 				$print = "auto draft";
 				break;
+
+			case 'pending':
+				$print = "pending review";
+				break;
 			
 			default:
 				$print = $status;
@@ -80,5 +90,39 @@ class extras {
 
 		echo $capitalize ? ucfirst( $print ) : $print; 
 	}
+
+	public static function nonce_field( $nonce_value ) {
+		wp_nonce_field( $nonce_value, self::$nonce_name );
+	}
+
+	public static function verify_nonce_field( $nonce_value ) {
+		$nonce_name = self::$nonce_name;
+
+		if (! isset( $_POST[$nonce_name] ) || ! wp_verify_nonce( $_POST[$nonce_name], $nonce_value ) ) {
+		   	print 'Sorry, your nonce did not verify.';
+		   	exit;
+		}
+	}
+
+	public static function verify_nonce_request( $nonce_value ) {
+		$nonce_name = '_cmsnonce';
+
+		if (! isset( $_REQUEST[$nonce_name] ) || ! wp_verify_nonce( $_REQUEST[$nonce_name], $nonce_value ) ) {
+		   	print 'Sorry, your nonce did not verify.';
+		   	exit;
+		}
+	}
+}
+endif;
+
+/**
+ * Pre function
+ * For debuging purpose
+ */
+if(! function_exists( 'pre' ) ):
+function pre( $data ) {
+	echo "<pre>";
+	print_r( $data );
+	echo "</pre>";
 }
 endif;
