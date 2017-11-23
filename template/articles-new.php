@@ -5,13 +5,8 @@
 	  	<small class="text-muted">Add New Article</small>
 	</h2>
 
-	<div class="row">
-		<div class="col-md-12">
-			<br>
-			<?php $data['flash']->display(); ?>
-		</div>
-	</div>
-	<br>
+	<?php extras::flash_message($data); ?>
+
 	<form action="" method="post">
 		<div class="row">
 
@@ -28,7 +23,7 @@
 			<div class="col-md-4">
 				<div class="form-group">
 					<label for="input-desc">Actions</label><br>
-					<input type="submit" value="Save Article" class="btn btn-primary">
+					<input type="submit" value="Save article" class="btn btn-primary">
 					<a href="<?php echo site_url('articles') ?>" class="btn btn-secondary">Cancel</a>
 				</div>
 				<div class="form-group">

@@ -1,12 +1,8 @@
 <?php get_header(); ?>
 <div class="container main-container">
-	<div class="row">
-		<div class="col-md-12">
-			<br>
-			<?php $data['flash']->display(); ?>
-		</div>
-	</div>
-	<br>
+	
+	<?php extras::flash_message($data); ?>
+	
 	<div class="row">
 		<div class="col-md-6">
 			<form action="" method="post">

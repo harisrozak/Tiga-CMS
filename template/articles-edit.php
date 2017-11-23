@@ -5,13 +5,8 @@
 	  	<small class="text-muted">Edit Article</small>
 	</h2>
 
-	<div class="row">
-		<div class="col-md-12">
-			<br>
-			<?php $data['flash']->display(); ?>
-		</div>
-	</div>
-	<br>
+	<?php extras::flash_message($data); ?>
+
 	<form action="" method="post">
 		<div class="row">
 
@@ -28,8 +23,8 @@
 			<div class="col-md-4">
 				<div class="form-group">
 					<label for="input-desc">Actions</label><br>
-					<input type="submit" value="Update Article" class="btn btn-primary">
-					<a href="<?php echo site_url('articles/' . $data['post']->ID . '/delete') ?>" class="btn btn-danger">Delete</a>
+					<input type="submit" value="Update article" class="btn btn-primary">
+					<a href="<?php echo site_url('articles/' . $data['post']->ID . '/trash') ?>" class="btn btn-danger">Move to trash</a>
 				</div>
 				<div class="form-group">
 					<label for="input-desc">Categories</label>

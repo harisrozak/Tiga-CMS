@@ -31,10 +31,12 @@ class HRS_Articles {
 	/**
 	 * Register Routes
 	 */
-	public function register_routes() {		
+	public function register_routes() {
+		TigaRoute::get( '/articles/status/{status:any}', array( $this, 'articles_index' ) );
 		TigaRoute::get( '/articles/page/{page:num}', array( $this, 'articles_index' ) );
 		TigaRoute::get( '/articles/{id:num}/edit', array( $this, 'articles_edit' ) );
 		TigaRoute::post( '/articles/{id:num}/edit', array( $this, 'articles_update' ) );
+		TigaRoute::get( '/articles/{id:num}/trash', array( $this, 'articles_trash' ) );
 		TigaRoute::get( '/articles/{id:num}/delete', array( $this, 'articles_delete' ) );
 		TigaRoute::get( '/articles/new', array( $this, 'articles_new' ) );
 		TigaRoute::post( '/articles/new', array( $this, 'articles_create' ) );	
@@ -49,14 +51,23 @@ class HRS_Articles {
 
 		global $wpdb;
 
+		// data table
 		$args = array(
     		'post_type' => 'post',
     		'posts_per_page' => 10,
-    		'post_status' => 'publish',
-    		'paged' => $request->input( 'page', 1 )
+    		'post_status' => $request->input( 'status', 'publish' ),
+    		'paged' => $request->input( 'page', 1 ),
+    		'ignore_sticky_posts' => true
+    	);
+
+    	$data = array(
+    		'args' => $args,
+    		'count_posts' =>  wp_count_posts(),
+    		'status' => $request->input( 'status', 'publish' ),
+    		'flash' => $this->flash,
     	);
 			
-		set_tiga_template( 'template/articles-index.php', array('args' => $args) );
+		set_tiga_template( 'template/articles-index.php', $data );
 	}
 
 	/**
@@ -82,6 +93,8 @@ class HRS_Articles {
 	 * @param object $request   Request object.
 	 */
 	public function articles_create( $request ) {
+		extras::check_login('login');
+
 		if ( $request->has( 'title' ) ) {
 			$data = $request->all();
 
@@ -112,7 +125,7 @@ class HRS_Articles {
 			}
 
 			// success flash message
-			$this->flash->success( 'Article created!' );
+			$this->flash->success( 'Article created' );
 			wp_safe_redirect( site_url() . '/articles/' . $post_id . '/edit/' );
 		} 
 		else {
@@ -129,6 +142,8 @@ class HRS_Articles {
 	 * @param object $request Request object.
 	 */
 	public function articles_edit( $request ) {
+		extras::check_login('login');
+
 		$post = get_post( $request->input( 'id' ) );
 		$thumbnail_id = get_post_thumbnail_id( $post->ID );
 		$thumbnail_src = false;
@@ -157,6 +172,8 @@ class HRS_Articles {
 	 * @param object $request Request object.
 	 */
 	public function articles_update( $request ) {
+		extras::check_login('login');
+
 		if ( $request->has( 'title' ) ) {
 			$data = $request->all();
 
@@ -188,15 +205,47 @@ class HRS_Articles {
 			}
 
 			// success flash message
-			$this->flash->success( 'Article updated!' );
+			$this->flash->success( 'Article updated' );
 			wp_safe_redirect( site_url() . '/articles/' . $post_id . '/edit/' );
 		} 
 		else {
 			// error flash message with return data
-			$this->flash->error( 'The title still empty!' );
+			$this->flash->error( 'The title still empty' );
 			$this->session->set( 'input', $request->all() );
 			wp_safe_redirect( site_url() . '/articles/new/' );
 		}
+	}
+
+	/**
+	 * Delete Item Controller
+	 *
+	 * @param object $request Request object.
+	 */
+	public function articles_trash( $request ) {
+		extras::check_login('login');
+
+		// delete a post
+		wp_delete_post( $request->input( 'id' ), false );
+
+		// success flash message
+		$this->flash->success( 'Article trashed' );
+		wp_safe_redirect( site_url() . '/articles' );
+	}
+
+	/**
+	 * Delete Item Controller
+	 *
+	 * @param object $request Request object.
+	 */
+	public function articles_delete( $request ) {
+		extras::check_login('login');
+
+		// delete a post
+		wp_delete_post( $request->input( 'id' ), true );
+
+		// success flash message
+		$this->flash->success( 'Article deleted permanenly' );
+		wp_safe_redirect( site_url() . '/articles' );
 	}
 }
 new HRS_Articles();
