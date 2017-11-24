@@ -32,6 +32,7 @@ class HRS_Articles {
 	 * Register Routes
 	 */
 	public function register_routes() {
+		TigaRoute::get( '/articles/status/{status:any}/page/{page:num}', array( $this, 'articles_index' ) );
 		TigaRoute::get( '/articles/status/{status:any}', array( $this, 'articles_index' ) );
 		TigaRoute::get( '/articles/page/{page:num}', array( $this, 'articles_index' ) );
 		TigaRoute::get( '/articles/{id:num}/edit', array( $this, 'articles_edit' ) );
@@ -64,13 +65,41 @@ class HRS_Articles {
     	// active status
 		$status = $request->input( 'status', 'publish' );
 		if($status == 'publish') {
-			$active_status = array('active', '', '');
+			$active_status = array('active', '', '', '');
 		}
 		else if($status == 'trash') {
-			$active_status = array('', 'active', '');
+			$active_status = array('', 'active', '', '');
 		}
 		else {
-			$active_status = array('', '', 'active');	
+			$active_status = array('', '', 'active', '');
+		}
+
+		// paginate route
+		if( $request->input( 'status', false ) ) {
+			$paginate_route = 'articles/status/' . $status;
+		}
+		else {
+			$paginate_route = 'articles';
+		}
+
+		// search
+		if( isset( $_REQUEST['search'] ) && $_REQUEST['search'] != '' ) {
+			$args['s'] = sanitize_text_field( $_REQUEST['search'] );
+			$active_status = array('', '', '', 'active');
+		}
+
+		// filter category
+		if( isset( $_REQUEST['category'] ) && intval($_REQUEST['category']) > 0 ) {
+			$term_id = intval($_REQUEST['category']);			
+			$args['tax_query'] = array(
+				array(
+					'taxonomy' => 'category',
+					'field'    => 'term_id',
+					'terms'    => $term_id,
+				),
+			);
+
+			$active_status = array('', '', '', 'active');
 		}
 
 		// data
@@ -79,6 +108,7 @@ class HRS_Articles {
     		'count_posts' =>  wp_count_posts(),
     		'status' => $status,
     		'active_status' => $active_status,
+    		'paginate_route' => $paginate_route,
     		'flash' => $this->flash,
     	);
 			

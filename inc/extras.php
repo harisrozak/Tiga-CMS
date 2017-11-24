@@ -20,12 +20,15 @@ class extras {
 		// pagination
 		$pagination = new \Tiga\Pagination;
 
+		// current query string
+		$query_string = $_SERVER['QUERY_STRING'] ? '?' . $_SERVER['QUERY_STRING'] : '';
+
 		// set up pagination parameter
 		$pagination_args = array(
 			'rows' => $total_number,
 			'current_page' => $args['paged'],
 			'per_page' => $args['posts_per_page'],
-			'base_url' => site_url($route . '/page/[paginate]'),
+			'base_url' => site_url($route . '/page/[paginate]') . $query_string,
 			'start_page' => 1,
 			'skip_item' => true,
 			'link_attribute' => 'class="page-link"',
@@ -51,11 +54,38 @@ class extras {
 
 		<div class="row">
 			<div class="col-md-12">
-				<br>
 				<?php $data['flash']->display() ?>
 			</div>
 		</div>
-		<br>
+
+		<?php endif;
+	}
+
+	public static function search_message( $data, $show_all_url ) {
+		$message = '';
+
+		// search key
+		if( isset( $data['args']['s'] ) ) {
+			$message.= "Search results for “{$data['args']['s']}”. ";
+		}
+
+		// category filter
+		if( isset( $data['args']['tax_query'] ) ) {
+			$tax = $data['args']['tax_query'][0]['taxonomy'];
+			$term = get_term_by( 'id', $data['args']['tax_query'][0]['terms'], $tax );
+			$message.= ucfirst( $tax ) . " filter results for “{$term->name}” ";
+		}
+
+		if( $message != '' ): ?>
+
+		<div class="row">
+			<div class="col-md-12">
+				<div class="alert alert-info" role="alert">
+				  	<?php echo $message ?>
+				  	<a href="<?php echo $show_all_url ?>" class="float-right">Show all data</a>
+				</div>				
+			</div>
+		</div>
 
 		<?php endif;
 	}

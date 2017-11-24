@@ -15,7 +15,10 @@
 	$nonce = wp_create_nonce( 'article_actions_nonce' );
 
 	// flash message
-	extras::flash_message($data);
+	extras::flash_message( $data );
+
+	// search message
+	extras::search_message( $data, site_url('articles') );
 	?>
 
 	<div class="row post-list-top-panel">
@@ -23,11 +26,11 @@
 			<a class="btn btn-outline-primary <?php echo $data['active_status'][0] ?>" href="<?php echo site_url('articles') ?>">
 				Published (<?php echo $data['count_posts']->publish ?>)
 			</a>
-			<a class="btn btn-outline-danger <?php echo $data['active_status'][1] ?>"" href="<?php echo site_url('articles/status/trash') ?>">
+			<a class="btn btn-outline-danger <?php echo $data['active_status'][1] ?>" href="<?php echo site_url('articles/status/trash') ?>">
 				Trashed (<?php echo $data['count_posts']->trash ?>)
 			</a>
 			<div class="btn-group">
-				<a class="btn btn-outline-dark dropdown-toggle <?php echo $data['active_status'][2] ?>"" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<a class="btn btn-outline-dark dropdown-toggle <?php echo $data['active_status'][2] ?>" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					Other Status	
 				</a>
 				<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
@@ -48,9 +51,10 @@
 			      	</a>
 				</div>
 			</div>
+			<a class="btn btn-outline-dark <?php echo $data['active_status'][3] ?>" href="javascript:;" data-toggle="modal" data-target="#search-modal">Search</a>
 		</div>
 		<div class="col-md-6">
-			<?php extras::wp_query_paginate($total_number, $data['args'], 'articles') ?>
+			<?php extras::wp_query_paginate($total_number, $data['args'], $data['paginate_route']) ?>
 		</div>
 	</div>
 
@@ -121,7 +125,48 @@
 	  	</thead>	  	
 	</table>
 
-	<?php extras::wp_query_paginate($total_number, $data['args'], 'articles') ?>
+	<?php extras::wp_query_paginate($total_number, $data['args'], $data['paginate_route']) ?>
+</div>
+
+<!-- Search Modal -->
+<div class="modal fade" id="search-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  	<div class="modal-dialog" role="document">
+    <div class="modal-content">
+    	<form method="get">
+      	<div class="modal-header">
+        	<h5 class="modal-title" id="exampleModalLabel">Search and filter</h5>
+        	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          		<span aria-hidden="true">&times;</span>
+        	</button>
+      	</div>
+      	<div class="modal-body">        	
+			<div class="form-group">
+				<label for="search">Search by name</label>
+				<input type="input" class="form-control" name="search" value="<?php echo isset( $data['args']['s'] ) ? $data['args']['s'] : '' ?>">
+			</div>
+			<div class="form-group">
+				<label for="filter-category">Filter by category</label>
+				<?php
+					$selected_cat = isset( $data['args']['tax_query'] ) ? $data['args']['tax_query'][0]['terms'] : 0;
+					wp_dropdown_categories( array(
+						'taxonomy' => 'category', 
+						'name' => 'category', 
+						'class' => 'form-control', 
+						'show_option_all' => 'All Categories', 
+						'hide_if_empty' => true, 
+						'hierarchical' => 1, 
+						'selected' => $selected_cat,
+					) ); 
+				?> 
+			</div>			
+      	</div>
+      	<div class="modal-footer">
+        	<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        	<input type="submit" class="btn btn-primary" value="Apply Search">
+      	</div>
+      	</form>
+    </div>
+  	</div>
 </div>
 
 <?php get_footer(); ?>
