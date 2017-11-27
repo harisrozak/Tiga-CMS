@@ -85,7 +85,6 @@ class HRS_Articles {
 		// search
 		if( isset( $_REQUEST['search'] ) && $_REQUEST['search'] != '' ) {
 			$args['s'] = sanitize_text_field( $_REQUEST['search'] );
-			$active_status = array('', '', '', 'active');
 		}
 
 		// filter category
@@ -98,8 +97,6 @@ class HRS_Articles {
 					'terms'    => $term_id,
 				),
 			);
-
-			$active_status = array('', '', '', 'active');
 		}
 
 		// data
