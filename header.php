@@ -21,19 +21,20 @@
           				<li class="nav-item">
             				<a class="nav-link" href="<?php echo site_url('articles') ?>">Articles</a>
           				</li>
-          				<li class="nav-item dropdown">
-				            <a class="nav-link dropdown-toggle" href="<?php echo site_url('article') ?>" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">Add New</a>
-				            <div class="dropdown-menu" aria-labelledby="dropdown01">
-				              	<a class="dropdown-item" href="<?php echo site_url('articles/new') ?>">New Article</a>
-				            </div>
-			          	</li>
-          			</ul>
-
-          			<ul class="navbar-nav float-right">
           				<li class="nav-item">
-            				<a class="nav-link" href="<?php echo site_url('logout') ?>">Logout</a>
+            				<a class="nav-link" href="<?php echo site_url('articles/new') ?>">Add New Article</a>
           				</li>
           			</ul>
+
+          			<?php if( is_user_logged_in() ): ?>
+          			
+          			<ul class="navbar-nav float-right">
+          				<li class="nav-item">
+            				<a class="btn btn-outline-danger" href="<?php echo site_url('logout') ?>">Log Out</a>
+          				</li>
+          			</ul>
+	          		
+	          		<?php endif ?>
 				</div>
 			</div>
 		</nav>
